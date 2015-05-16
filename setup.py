@@ -1,5 +1,5 @@
 import codecs
-from distutils.core import setup
+from setuptools import setup
 from glob import glob
 import os.path as path
 
@@ -14,7 +14,7 @@ except LookupError:
         return {True: enc}.get(name == 'mbcs')
     codecs.register(wrapper)
 
-install_requires = ['pytz', 'httplib2', 'beautifulsoup4']
+install_requires = ['pytz', 'httplib2', 'beautifulsoup4', 'six']
 try:
     import argparse
 except ImportError:
