@@ -19,6 +19,9 @@ import nflgame.sched
 import nflgame.seq
 import nflgame.statmap
 
+# Py2/3 Compat for cmp
+cmp = lambda x, y: (x > y) - (x < y)
+
 try:
   _MAX_INT = sys.maxint
 except AttributeError:
@@ -83,6 +86,37 @@ class FieldPosition (object):
         else:
             self.offset = 50 - yd
 
+    def __lt__(self, other):
+        if isinstance(other, int):
+            return self.offset < other
+        return self.offset < other.offset
+
+    # Needed for python3 comparisons, no more cmp/__cmp__
+    def __le__(self, other):
+        if isinstance(other, int):
+            return self.offset <= other
+        return self.offset <= other.offset
+    
+    def __eq__(self, other):
+        if isinstance(other, int):
+            return self.offset == other
+        return self.offset == other.offset
+    
+    def __ne__(self, other):
+        if isinstance(other, int):
+            return self.offset != other
+        return self.offset != other.offset
+
+    def __gt__(self, other):
+        if isinstance(other, int):
+            return self.offset > other
+        return self.offset > other.offset
+    
+    def __ge__(self, other):
+        if isinstance(other, int):
+            return self.offset >= other
+        return self.offset >= other.offset
+    
     def __cmp__(self, other):
         if isinstance(other, int):
             return cmp(self.offset, other)
@@ -122,6 +156,32 @@ class PossessionTime (object):
         Returns the total number of seconds that this possession lasted for.
         """
         return self.seconds + self.minutes * 60
+
+
+    # Needed for python3 comparisons, no more cmp/__cmp__
+    def __lt__(self, other):
+        a, b = (self.minutes, self.seconds), (other.minutes, other.seconds)
+        return a < b
+
+    def __le__(self, other):
+        a, b = (self.minutes, self.seconds), (other.minutes, other.seconds)
+        return a <= b
+
+    def __eq__(self, other):
+        a, b = (self.minutes, self.seconds), (other.minutes, other.seconds)
+        return a == b
+
+    def __ne__(self, other):
+        a, b = (self.minutes, self.seconds), (other.minutes, other.seconds)
+        return a != b
+
+    def __gt__(self, other):
+        a, b = (self.minutes, self.seconds), (other.minutes, other.seconds)
+        return a > b
+
+    def __ge__(self, other):
+        a, b = (self.minutes, self.seconds), (other.minutes, other.seconds)
+        return a >= b
 
     def __cmp__(self, other):
         a, b = (self.minutes, self.seconds), (other.minutes, other.seconds)
@@ -200,6 +260,49 @@ class GameClock (object):
 
     def is_final(self):
         return 'final' in self.qtr.lower()
+
+    # Needed for python3 comparisons, no more cmp/__cmp__
+    def __lt__(self, other):
+        if self.__qtr != other.__qtr:
+            return self.__qtr < other.__qtr
+        elif self._minutes != other._minutes:
+            return other._minutes < self._minutes
+        return other._seconds < self._seconds
+
+    def __le__(self, other):
+        if self.__qtr != other.__qtr:
+            return self.__qtr <= other.__qtr
+        elif self._minutes != other._minutes:
+            return other._minutes <= self._minutes
+        return other._seconds <= self._seconds
+
+    def __eq__(self, other):
+        if self.__qtr != other.__qtr:
+            return self.__qtr == other.__qtr
+        elif self._minutes != other._minutes:
+            return other._minutes == self._minutes
+        return other._seconds == self._seconds
+
+    def __ne__(self, other):
+        if self.__qtr != other.__qtr:
+            return self.__qtr != other.__qtr
+        elif self._minutes != other._minutes:
+            return other._minutes != self._minutes
+        return other._seconds != self._seconds
+
+    def __gt__(self, other):
+        if self.__qtr != other.__qtr:
+            return self.__qtr > other.__qtr
+        elif self._minutes != other._minutes:
+            return other._minutes < self._minutes
+        return other._seconds > self._seconds
+
+    def __ge__(self, other):
+        if self.__qtr != other.__qtr:
+            return self.__qtr > other.__qtr
+        elif self._minutes != other._minutes:
+            return other._minutes > self._minutes
+        return other._seconds > self._seconds
 
     def __cmp__(self, other):
         if self.__qtr != other.__qtr:
@@ -345,7 +448,10 @@ class Game (object):
         if fpath is None:
             fpath = _jsonf % self.eid
         try:
-            print (self.rawData, file=gzip.open(fpath, 'w+')) 
+            fout = gzip.open(fpath, 'w+')
+            fout.write(bytes(self.rawData, 'utf-8'))
+            fout.close()
+            #bytes(self.rawData, 'utf-8'), file=gzip.open(fpath, 'w+')) 
         except IOError:
             print ("Could not cache JSON data. Please " \
                    "make '%s' writable." \
@@ -806,7 +912,7 @@ def _get_json_data(eid=None, fpath=None):
     if os.access(fpath, os.R_OK):
         return gzip.open(fpath).read().decode('utf-8')
     try:
-        return urlopen(_json_base_url % (eid, eid), timeout=5).read()
+        return urlopen(_json_base_url % (eid, eid), timeout=5).read().decode('utf-8')
     except HTTPError:
         pass
     except socket.timeout:

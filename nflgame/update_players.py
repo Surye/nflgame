@@ -54,6 +54,7 @@ from bs4 import BeautifulSoup
 
 # Py2/3 Compat for dict.itervalues
 from six import itervalues
+from six import iteritems
 
 import nflgame
 import nflgame.live
@@ -110,7 +111,7 @@ def gsis_id(profile_url):
     resp, content = new_http().request(profile_url, 'GET')
     if resp['status'] != '200':
         return None
-    m = re.search('GSIS\s+ID:\s+([0-9-]+)', content)
+    m = re.search('GSIS\s+ID:\s+([0-9-]+)', content.decode('utf-8'))
     if m is None:
         return None
     gid = m.group(1).strip()
@@ -123,7 +124,7 @@ def roster_soup(team):
     resp, content = new_http().request(urls['roster'] % team, 'GET')
     if resp['status'] != '200':
         return None
-    return BeautifulSoup(content)
+    return BeautifulSoup(content.decode('utf-8'))
 
 
 def try_int(s):
@@ -462,7 +463,7 @@ def run():
                     return gid, purl, False
                 else:
                     return gid, purl, None
-            return gid, purl, content
+            return gid, purl, content.decode('utf-8')
         for i, (gid, purl, html) in enumerate(pool.imap(fetch, gids), 1):
             progress(i, len(gids))
             more_meta = meta_from_profile_html(html)
