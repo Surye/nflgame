@@ -1,3 +1,4 @@
+from __future__ import print_function
 from collections import namedtuple
 import os
 import os.path as path
@@ -449,12 +450,11 @@ class Game (object):
             fpath = _jsonf % self.eid
         try:
             fout = gzip.open(fpath, 'w+')
-            fout.write(bytes(self.rawData, 'utf-8'))
+            data = bytes(self.rawData, 'utf-8')
+            fout.write(data)
             fout.close()
-            #bytes(self.rawData, 'utf-8'), file=gzip.open(fpath, 'w+')) 
         except IOError:
-            print ("Could not cache JSON data. Please " \
-                   "make '%s' writable." \
+            print ("Could not cache JSON data. Please make '%s' writable." \
                      % os.path.dirname(fpath), file=sys.stderr)
 
     def nice_score(self):
