@@ -20,11 +20,7 @@ import nflgame.sched
 import nflgame.seq
 import nflgame.statmap
 
-try:
-    _MAX_INT = sys.maxint
-except AttributeError:
-    # There is no more maxint in Py3, but this will work for now
-    _MAX_INT = 2147483647
+_MAX_INT = sys.maxsize
 
 _jsonf = path.join(path.split(__file__)[0], 'gamecenter-json', '%s.json.gz')
 _json_base_url = "http://www.nfl.com/liveupdate/game-center/%s/%s_gtd.json"
@@ -146,7 +142,7 @@ class PossessionTime (object):
         self.clock = clock
 
         try:
-            self.minutes, self.seconds = map(int, self.clock.split(':'))
+            self.minutes, self.seconds = list(map(int, self.clock.split(':')))
         except ValueError:
             self.minutes, self.seconds = 0, 0
 
@@ -217,7 +213,7 @@ class GameClock (object):
         self.clock = clock
 
         try:
-            self._minutes, self._seconds = map(int, self.clock.split(':'))
+            self._minutes, self._seconds = list(map(int, self.clock.split(':')))
         except ValueError:
             self._minutes, self._seconds = 0, 0
         except AttributeError:
@@ -408,7 +404,7 @@ class Game (object):
 
         # Load the scoring summary into a simple list of strings.
         self.scores = []
-        for k in sorted(map(int, self.data['scrsummary'])):
+        for k in sorted(list(map(int, self.data['scrsummary']))):
             play = self.data['scrsummary'][str(k)]
             s = '%s - Q%d - %s - %s' \
                 % (play['team'], play['qtr'], play['type'], play['desc'])
@@ -602,7 +598,7 @@ class Drive (object):
             self.field_end = FieldPosition(self.team, data['end']['yrdln'])
         else:
             self.field_end = None
-            playids = sorted(map(int, data['plays'].keys()), reverse=True)
+            playids = sorted(list(map(int, list(data['plays'].keys()))), reverse=True)
             for pid in playids:
                 yrdln = data['plays'][str(pid)]['yrdln'].strip()
                 if yrdln:
@@ -617,8 +613,8 @@ class Drive (object):
         # seem to always work.)
         # lastplayid = str(max(map(int, data['plays'].keys())))
         # endqtr = data['plays'][lastplayid]['qtr']
-        qtrs = [p['qtr'] for p in data['plays'].values()]
-        maxq = str(max(map(int, qtrs)))
+        qtrs = [p['qtr'] for p in list(data['plays'].values())]
+        maxq = str(max(list(map(int, qtrs))))
         self.time_end = GameClock(maxq, data['end']['time'])
 
         # One last sanity check. If the end time is less than the start time,
@@ -699,8 +695,8 @@ class Play (object):
             for info in data['players']['0']:
                 if info['statId'] not in nflgame.statmap.idmap:
                     continue
-                statvals = nflgame.statmap.values(info['statId'],
-                                                  info['yards'])
+                statvals = list(nflgame.statmap.values(info['statId'],
+                                                  info['yards']))
                 for k, v in iteritems(statvals):
                     v = self.__dict__.get(k, 0) + v
                     self.__dict__[k] = v
@@ -800,7 +796,7 @@ def _json_plays(drive, data):
     plays = []
     seen_ids = set()
     seen_desc = set()  # Sometimes duplicates have different play ids...
-    for playid in map(str, sorted(map(int, data))):
+    for playid in list(map(str, sorted(map(int, data)))):
         p = data[playid]
         desc = (p['desc'], p['time'], p['yrdln'], p['qtr'])
         if playid in seen_ids or desc in seen_desc:
