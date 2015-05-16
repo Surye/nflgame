@@ -1,9 +1,9 @@
 import functools
 import itertools
 try:
-  import itertools.ifilter as filter
+    import itertools.ifilter as filter
 except ImportError:
-  pass
+    pass
 
 import operator
 
@@ -101,7 +101,7 @@ class Gen (object):
             preds.append(functools.partial(pred, k, v))
 
         gen = filter(lambda item: all([f(item) for f in preds]),
-                            self)
+                     self)
         return self.__class__(gen)
 
     def limit(self, n):
@@ -249,7 +249,7 @@ class GenPlayerStats (Gen):
 
     def __filter_category(self, cat):
         return self.__class__(filter(lambda p: p.has_cat(cat),
-                                    self))
+                              self))
 
     def passing(self):
         """Returns players that have a "passing" statistical category."""

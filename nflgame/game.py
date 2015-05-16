@@ -20,13 +20,11 @@ import nflgame.sched
 import nflgame.seq
 import nflgame.statmap
 
-# Py2/3 Compat for cmp
-cmp = lambda x, y: (x > y) - (x < y)
-
 try:
-  _MAX_INT = sys.maxint
+    _MAX_INT = sys.maxint
 except AttributeError:
-  _MAX_INT = 2147483647 # There is no more maxint in Py3, but this will work for now
+    # There is no more maxint in Py3, but this will work for now
+    _MAX_INT = 2147483647
 
 _jsonf = path.join(path.split(__file__)[0], 'gamecenter-json', '%s.json.gz')
 _json_base_url = "http://www.nfl.com/liveupdate/game-center/%s/%s_gtd.json"
@@ -97,12 +95,12 @@ class FieldPosition (object):
         if isinstance(other, int):
             return self.offset <= other
         return self.offset <= other.offset
-    
+
     def __eq__(self, other):
         if isinstance(other, int):
             return self.offset == other
         return self.offset == other.offset
-    
+
     def __ne__(self, other):
         if isinstance(other, int):
             return self.offset != other
@@ -112,12 +110,12 @@ class FieldPosition (object):
         if isinstance(other, int):
             return self.offset > other
         return self.offset > other.offset
-    
+
     def __ge__(self, other):
         if isinstance(other, int):
             return self.offset >= other
         return self.offset >= other.offset
-    
+
     def __cmp__(self, other):
         if isinstance(other, int):
             return cmp(self.offset, other)
@@ -157,7 +155,6 @@ class PossessionTime (object):
         Returns the total number of seconds that this possession lasted for.
         """
         return self.seconds + self.minutes * 60
-
 
     # Needed for python3 comparisons, no more cmp/__cmp__
     def __lt__(self, other):
@@ -454,8 +451,8 @@ class Game (object):
             fout.write(data)
             fout.close()
         except IOError:
-            print ("Could not cache JSON data. Please make '%s' writable." \
-                     % os.path.dirname(fpath), file=sys.stderr)
+            print ("Could not cache JSON data. Please make '%s' writable."
+                   % os.path.dirname(fpath), file=sys.stderr)
 
     def nice_score(self):
         """
@@ -912,7 +909,8 @@ def _get_json_data(eid=None, fpath=None):
     if os.access(fpath, os.R_OK):
         return gzip.open(fpath).read().decode('utf-8')
     try:
-        return urlopen(_json_base_url % (eid, eid), timeout=5).read().decode('utf-8')
+        data = urlopen(_json_base_url % (eid, eid), timeout=5).read()
+        return data.decode('utf-8')
     except HTTPError:
         pass
     except socket.timeout:

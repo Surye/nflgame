@@ -190,9 +190,9 @@ class PlayerStats (object):
         Returns the total number of two point conversion attempts for
         the passing, rushing and receiving categories.
         """
-        return (self.passing_twopta
-                + self.rushing_twopta
-                + self.receiving_twopta)
+        return (self.passing_twopta +
+                self.rushing_twopta +
+                self.receiving_twopta)
 
     @property
     def twoptm(self):
@@ -200,9 +200,9 @@ class PlayerStats (object):
         Returns the total number of two point conversions for
         the passing, rushing and receiving categories.
         """
-        return (self.passing_twoptm
-                + self.rushing_twoptm
-                + self.receiving_twoptm)
+        return (self.passing_twoptm +
+                self.rushing_twoptm +
+                self.receiving_twoptm)
 
     @property
     def twoptmissed(self):
@@ -210,9 +210,9 @@ class PlayerStats (object):
         Returns the total number of two point conversion failures for
         the passing, rushing and receiving categories.
         """
-        return (self.passing_twoptmissed
-                + self.rushing_twoptmissed
-                + self.receiving_twoptmissed)
+        return (self.passing_twoptmissed +
+                self.rushing_twoptmissed +
+                self.receiving_twoptmissed)
 
     @property
     def stats(self):
