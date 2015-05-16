@@ -85,6 +85,7 @@ try:
 except:
     from ordereddict import OrderedDict  # from PyPI
 import itertools
+from functools import reduce
 
 import nflgame.game
 import nflgame.live
@@ -92,6 +93,9 @@ import nflgame.player
 import nflgame.sched
 import nflgame.seq
 from nflgame.version import __version__
+
+# Py2/3 Compat for dict.itervalues
+from six import itervalues
 
 assert OrderedDict  # Asserting the import for static analysis.
 VERSION = __version__  # Deprecated. Backwards compatibility.
@@ -159,7 +163,7 @@ def find(name, team=None):
     If team is not None, it is used as an additional search constraint.
     """
     hits = []
-    for player in players.itervalues():
+    for player in itervalues(players):
         if player.name.lower() == name.lower():
             if team is None or team.lower() == player.team.lower():
                 hits.append(player)
@@ -425,7 +429,7 @@ def _search_schedule(year, week=None, home=None, away=None, kind='REG',
     (as opposed to waiting for a 404 error from NFL.com).
     """
     infos = []
-    for info in nflgame.sched.games.itervalues():
+    for info in itervalues(nflgame.sched.games):
         y, t, w = info['year'], info['season_type'], info['week']
         h, a = info['home'], info['away']
         if year is not None:

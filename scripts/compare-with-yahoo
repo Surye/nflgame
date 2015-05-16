@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 # The purpose of this script is to test the aggregate accuracy of statistics
 # reported by nflgame. This is done by assuming a ground truth, which we take
@@ -36,6 +36,7 @@
 # nfldb rounds out. I'll test nflgame by proxy with nfldb (it'll be much
 # much quicker). The player name matching crap below will be built into
 # nfldb too.
+from __future__ import print_function
 
 import argparse
 from collections import OrderedDict
@@ -44,6 +45,9 @@ import heapq
 import os
 import os.path as path
 import sys
+
+
+from six import iteritems
 
 import Levenshtein
 
@@ -118,7 +122,7 @@ def find(name, team=None, pos=None):
         pos = standard_position(pos)
 
     result = []
-    for pid, p in indexed.iteritems():
+    for pid, p in iteritems(indexed):
         if pos is not None and pos != standard_position(p.guess_position):
             continue
 
@@ -130,8 +134,8 @@ def find(name, team=None, pos=None):
 
     result = heapq.nlargest(1, result)
     if team is not None and result[0][0] < 0.85:
-        sameteam = lambda (r, pid): \
-            nflgame.standard_team(team) == indexed[pid].team
+        sameteam = lambda r, pid: \
+          nflgame.standard_team(team) == indexed[pid].team
         result = filter(sameteam, result)
         if len(result) == 0:
             return None, 0.0
@@ -315,7 +319,7 @@ def player_cmp(pos, yahoo_row, pobj):
         'Name': yahoo_row['Name'],
         'Team': yahoo_row['Team'],
     }
-    for yahoo_field, nflgame_field in statmap[pos].iteritems():
+    for yahoo_field, nflgame_field in iteritems(statmap[pos]):
         truth = number(yahoo_row[yahoo_field])
         test = 0
         if hasattr(pobj, nflgame_field):
@@ -340,7 +344,7 @@ for f in args.yahoo_data_files:
         n, t = row['Name'], row['Team']
         m, r = find(n, t, pos)
         if m is None:
-            print >> sys.stderr, 'NO MATCH (skipping): %s %s %s' % (n, t, pos)
+            print ('NO MATCH (skipping): %s %s %s' % (n, t, pos), file=sys.stderr)
             continue
         out.writerow(player_cmp(pos, row, m))
     tsvf.flush()

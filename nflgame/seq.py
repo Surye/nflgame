@@ -1,6 +1,14 @@
 import functools
 import itertools
+try:
+  import itertools.ifilter as filter
+except ImportError:
+  pass
+
 import operator
+
+# Py2/3 Compat for dict.itervalues
+from six import itervalues
 
 from nflgame import OrderedDict
 from nflgame import statmap
@@ -77,9 +85,9 @@ class Gen (object):
         (Django users should feel right at home.)
         """
         preds = []
-        for k, v in kwargs.iteritems():
+        for k, v in iteritems(kwargs):
             def pred(field, value, item):
-                for suffix, p in _BUILTIN_PREDS.iteritems():
+                for suffix, p in iteritems(_BUILTIN_PREDS):
                     if field.endswith(suffix):
                         f = field[:field.index(suffix)]
                         if not hasattr(item, f) or getattr(item, f) is None:
@@ -92,8 +100,8 @@ class Gen (object):
                 return getattr(item, field) == value
             preds.append(functools.partial(pred, k, v))
 
-        gen = itertools.ifilter(lambda item: all([f(item) for f in preds]),
-                                self)
+        gen = filter(lambda item: all([f(item) for f in preds]),
+                            self)
         return self.__class__(gen)
 
     def limit(self, n):
@@ -125,7 +133,7 @@ class Gen (object):
         if self.__iter is None:
             return iter([])
         if isinstance(self.__iter, OrderedDict):
-            return self.__iter.itervalues()
+            return itervalues(self.__iter)
         return iter(self.__iter)
 
     def __reversed__(self):
@@ -240,8 +248,8 @@ class GenPlayerStats (Gen):
         return self.__class__(gen())
 
     def __filter_category(self, cat):
-        return self.__class__(itertools.ifilter(lambda p: p.has_cat(cat),
-                                                self))
+        return self.__class__(filter(lambda p: p.has_cat(cat),
+                                    self))
 
     def passing(self):
         """Returns players that have a "passing" statistical category."""
@@ -302,10 +310,10 @@ class GenPlayerStats (Gen):
         fields, rows = set([]), []
         players = list(self)
         for p in players:
-            for field, stat in p.stats.iteritems():
+            for field, stat in iteritems(p.stats):
                 fields.add(field)
         if allfields:
-            for statId, info in statmap.idmap.iteritems():
+            for statId, info in iteritems(statmap.idmap):
                 for field in info['fields']:
                     fields.add(field)
         fields = sorted(list(fields))

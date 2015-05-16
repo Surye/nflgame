@@ -52,6 +52,9 @@ import httplib2
 
 from bs4 import BeautifulSoup
 
+# Py2/3 Compat for dict.itervalues
+from six import itervalues
+
 import nflgame
 import nflgame.live
 import nflgame.player
@@ -345,7 +348,7 @@ def run():
         players = {}
 
         # Grab players one game a time to avoid obscene memory requirements.
-        for _, schedule in nflgame.sched.games.itervalues():
+        for _, schedule in itervalues(nflgame.sched.games):
             # If the game is too far in the future, skip it...
             if nflgame.live._game_datetime(schedule) > nflgame.live._now():
                 continue
@@ -446,7 +449,7 @@ def run():
     # Finally, try to scrape meta data for players who aren't on a roster
     # but have recorded a statistic in nflgame.
     gids = [(gid, meta['profile_url'])
-            for gid, meta in metas.iteritems()
+            for gid, meta in iteritems(metas)
             if 'full_name' not in meta and 'profile_url' in meta]
     if len(gids):
         eprint('Fetching meta data for players not on a roster...')
