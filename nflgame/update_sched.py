@@ -4,7 +4,8 @@ import time
 import json
 import os
 import sys
-import urllib2
+from six.moves.urllib.request import urlopen
+from six.moves.urllib.error import HTTPError
 import xml.dom.minidom as xml
 
 import nflgame
@@ -54,9 +55,9 @@ def week_schedule(year, stype, week):
     """
     url = schedule_url(year, stype, week)
     try:
-        dom = xml.parse(urllib2.urlopen(url))
-    except urllib2.HTTPError:
-        print >> sys.stderr, 'Could not load %s' % url
+        dom = xml.parse(urlopen(url))
+    except HTTPError:
+        print ('Could not load %s' % url, file=sys.stderr)
         return []
 
     games = []
