@@ -695,8 +695,8 @@ class Play (object):
             for info in data['players']['0']:
                 if info['statId'] not in nflgame.statmap.idmap:
                     continue
-                statvals = list(nflgame.statmap.values(info['statId'],
-                                                  info['yards']))
+                statvals = nflgame.statmap.values(info['statId'],
+                                                  info['yards'])
                 for k, v in iteritems(statvals):
                     v = self.__dict__.get(k, 0) + v
                     self.__dict__[k] = v
