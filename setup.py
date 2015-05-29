@@ -1,5 +1,8 @@
 import codecs
-from setuptools import setup
+try:
+    from setuptools import setup
+except ImportError: # fall back to distutils
+    from distutils.core import setup
 from glob import glob
 import os.path as path
 
